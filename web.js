@@ -264,6 +264,6 @@ Cloudilly.prototype.getCookie= function(cname) {
 	for(var i= 0; i< ca.length; i++) { var c= ca[i]; while(c.charAt(0)==" ") { c= c.substring(1); }; if(c.indexOf(name)== 0) { return c.substring(name.length, c.length); } }
 }
 Cloudilly.prototype.getToken= function(device, callback) {
-	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "tokens", true); xmlHttp.setRequestHeader("CONTENT-TYPE","APPLICATION/X-WWW-FORM-URLENCODED");
+	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "/tokens", true); xmlHttp.setRequestHeader("CONTENT-TYPE","APPLICATION/X-WWW-FORM-URLENCODED");
 	xmlHttp.onload= function() { callback(JSON.parse(this.responseText)); }; xmlHttp.send("device=" + device + "&cookie=" + self.getCookie.call(self, "cloudilly"));
 }
