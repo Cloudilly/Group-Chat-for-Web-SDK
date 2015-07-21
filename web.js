@@ -192,6 +192,97 @@ Cloudilly.prototype.changePassword= function(group, password, random, callback) 
 	obj.random= random;
 	self.writeAndTask.call(self, obj, callback);
 }
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SUPER METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Cloudilly.prototype._createAccount= function(username, password, payload, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_createAccount";
+	obj.username= username;
+	obj.password= password;
+	obj.payload= payload;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._generateSecret= function(callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_generateSecret";
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._requestSES= function(callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_requestSES";
+	self.writeAndTask.call(self, obj, callback);
+}
+	
+Cloudilly.prototype._createApp= function(app, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_createApp";
+	obj.app= app;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updatePlan= function(app, plan, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updatePlan";
+	obj.app= app;
+	obj.plan= plan;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateDescription= function(app, description, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateDescription";
+	obj.app= app;
+	obj.description= description;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._insertValidDomain= function(app, validDomain, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_insertValidDomain";
+	obj.app= app;
+	obj.validDomain= validDomain;
+	self.writeAndTask.call(self, obj, callback);
+}
+		
+Cloudilly.prototype._removeValidDomain= function(app, validDomain, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_removeValidDomain";
+	obj.app= app;
+	obj.validDomain= validDomain;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateAccess= function(app, saas, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateAccess";
+	obj.app= app;
+	obj.saas= saas;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateBunID= function(app, platform, bunID, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateBunID";
+	obj.app= app;
+	obj.platform= platform;
+	obj.bunID= bunID;
+	self.writeAndTask.call(self, obj, callback);
+}
 			
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
@@ -207,7 +298,7 @@ Cloudilly.prototype.challenge= function(obj) {
 }
 Cloudilly.prototype.connectNormal= function() {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
-	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "_web"; obj.version= 1;
+	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "web"; obj.version= 1;
 	if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
