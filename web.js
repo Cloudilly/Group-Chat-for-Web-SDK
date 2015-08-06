@@ -193,6 +193,7 @@ Cloudilly.prototype.changePassword= function(group, password, random, callback) 
 	self.writeAndTask.call(self, obj, callback);
 }
 
+<<<<<<< HEAD
 Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, callback) {
 	var self= this;
 	var obj= {};
@@ -205,6 +206,8 @@ Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, cal
 	self.writeAndTask.call(self, obj, callback);
 }
 	
+=======
+>>>>>>> origin/master
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SUPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

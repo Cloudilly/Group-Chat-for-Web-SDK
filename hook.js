@@ -194,6 +194,7 @@ module.exports= {
 		obj.random= random;
 		self.writeAndTask.call(self, obj, callback);
 	},
+<<<<<<< HEAD
 
 	email: function(name, replyTo, recipient, subject, body, callback) {
 		var self= this;
@@ -206,6 +207,8 @@ module.exports= {
 		obj.body= body;
 		self.writeAndTask.call(self, obj, callback);
 	},
+=======
+>>>>>>> origin/master
 	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SUPER METHODS
