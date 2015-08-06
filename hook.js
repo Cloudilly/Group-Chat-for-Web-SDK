@@ -165,6 +165,15 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
+	_requestPasswordChange: function(app, group, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_requestPasswordChange";
+		obj.app= app;
+		obj.group= group;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 	changePassword: function(group, password, random, callback) {
 		var self= this;
 		var obj= {};
@@ -175,13 +184,60 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
+	_changePassword: function(app, group, password, random, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_changePassword";
+		obj.app= app;
+		obj.group= group;
+		obj.password= password;
+		obj.random= random;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	email: function(name, replyTo, recipient, subject, body, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "email";
+		obj.name= name;
+		obj.replyTo= replyTo;
+		obj.recipient= recipient;
+		obj.subject= subject;
+		obj.body= body;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SUPER METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	_updatePlatform: function(app, device, platform, arn, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_updatePlatform";
+		obj.app= app;
+		obj.device= device;
+		obj.platform= platform;
+		obj.arn= arn;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
+	_verifyAccount: function(username, accountID, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_verifyAccount";
+		obj.username= username;
+		obj.accountID= accountID;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 	
 	connectNormal: function(username, password) {
 		var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
-		var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "_hook"; obj.version= 1;
+		var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "hook"; obj.version= 1;
 		if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 		var str= JSON.stringify(obj); self.socket.send(str);
 	},
