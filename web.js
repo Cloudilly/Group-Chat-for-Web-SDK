@@ -150,25 +150,22 @@ Cloudilly.prototype.notify= function(message, group, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.createGroup= function(group, callback) {
+Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, callback) {
 	var self= this;
 	var obj= {};
-	obj.type= "createGroup";
-	obj.group= group;
+	obj.type= "email";
+	obj.name= name;
+	obj.replyTo= replyTo;
+	obj.recipient= recipient;
+	obj.subject= subject;
+	obj.body= body;
 	self.writeAndTask.call(self, obj, callback);
 }
-Cloudilly.prototype.createGroupAndPassword= function(group, password, callback) {
+
+Cloudilly.prototype.create= function(group, password, payload, callback) {
 	var self= this;
 	var obj= {};
-	obj.type= "createGroup";
-	obj.group= group;
-	obj.password= password;
-	self.writeAndTask.call(self, obj, callback);
-}
-Cloudilly.prototype.createGroupPasswordAndPayload= function(group, password, payload, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "createGroup";
+	obj.type= "create";
 	obj.group= group;
 	obj.password= password;
 	obj.payload= payload;
@@ -193,18 +190,6 @@ Cloudilly.prototype.changePassword= function(group, password, random, callback) 
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "email";
-	obj.name= name;
-	obj.replyTo= replyTo;
-	obj.recipient= recipient;
-	obj.subject= subject;
-	obj.body= body;
-	self.writeAndTask.call(self, obj, callback);
-}
-	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SUPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
