@@ -162,11 +162,11 @@ Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, cal
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.create= function(group, password, callback) {
+Cloudilly.prototype.create= function(username, password, callback) {
 	var self= this;
 	var obj= {};
 	obj.type= "create";
-	obj.group= group;
+	obj.username= username;
 	obj.password= password;
 	self.writeAndTask.call(self, obj, callback);
 }

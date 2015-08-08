@@ -145,11 +145,11 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	create: function(group, password, callback) {
+	create: function(username, password, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "create";
-		obj.group= group;
+		obj.username= username;
 		obj.password= password;
 		self.writeAndTask.call(self, obj, callback);
 	},
