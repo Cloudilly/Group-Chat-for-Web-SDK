@@ -171,11 +171,11 @@ Cloudilly.prototype.create= function(username, password, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.requestPasswordChange= function(group, callback) {
+Cloudilly.prototype.requestPasswordChange= function(username, callback) {
 	var self= this;
 	var obj= {};
 	obj.type= "requestPasswordChange";
-	obj.group= group;
+	obj.username= username;
 	self.writeAndTask.call(self, obj, callback);
 }
 

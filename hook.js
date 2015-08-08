@@ -154,39 +154,39 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	requestPasswordChange: function(group, callback) {
+	requestPasswordChange: function(username, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "requestPasswordChange";
-		obj.group= group;
+		obj.username= username;
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	_requestPasswordChange: function(app, group, callback) {
+	_requestPasswordChange: function(username, group, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "_requestPasswordChange";
 		obj.app= app;
-		obj.group= group;
+		obj.username= username;
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	changePassword: function(group, password, random, callback) {
+	changePassword: function(username, password, random, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "changePassword";
-		obj.group= group;
+		obj.username= username;
 		obj.password= password;
 		obj.random= random;
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	_changePassword: function(app, group, password, random, callback) {
+	_changePassword: function(app, username, password, random, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "_changePassword";
 		obj.app= app;
-		obj.group= group;
+		obj.username= username;
 		obj.password= password;
 		obj.random= random;
 		self.writeAndTask.call(self, obj, callback);
