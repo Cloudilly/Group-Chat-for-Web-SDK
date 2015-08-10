@@ -28,6 +28,7 @@ Cloudilly.prototype.connect= function(username, password) {
 		var obj= JSON.parse(msg.data);
 		
 		switch(obj.type) {
+			case "reinit": self.connectNormal.call(self); return; 
 			case "challenge": self.challenge.call(self, obj); return;
 			
 			case "connect":
