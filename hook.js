@@ -193,30 +193,6 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// SUPER METHODS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-	_updatePlatform: function(app, device, platform, arn, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_updatePlatform";
-		obj.app= app;
-		obj.device= device;
-		obj.platform= platform;
-		obj.arn= arn;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	_verifyAccount: function(username, accountID, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_verifyAccount";
-		obj.username= username;
-		obj.accountID= accountID;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
