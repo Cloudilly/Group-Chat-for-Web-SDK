@@ -60,41 +60,7 @@ module.exports= {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SAAS METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		
-	login: function(username, password, callback) {
-		var self= this;
-		self.username= username;
-		self.password= password;
-		var obj= {};
-		obj.type= "login";
-		obj.username= self.username;
-		obj.password= self.password;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	logout: function(callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "logout";
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	join: function(group, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "join";
-		obj.group= group;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	unjoin: function(group, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "unjoin";
-		obj.group= group;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
+
 	listen: function(group, callback) {
 		var self= this;
 		var obj= {};
@@ -110,7 +76,23 @@ module.exports= {
 		obj.group= group;
 		self.writeAndTask.call(self, obj, callback);
 	},
+
+	join: function(group, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "join";
+		obj.group= group;
+		self.writeAndTask.call(self, obj, callback);
+	},
 	
+	unjoin: function(group, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "unjoin";
+		obj.group= group;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
 	post: function(group, payload, callback) {
 		var self= this;
 		var obj= {};
@@ -119,12 +101,48 @@ module.exports= {
 		obj.payload= payload;
 		self.writeAndTask.call(self, obj, callback);
 	},
-	
-	unpost: function(post, callback) {
+
+	store: function(group, payload, callback) {
 		var self= this;
 		var obj= {};
-		obj.type= "unpost";
+		obj.type= "store";
+		obj.group= group;
+		obj.payload= payload;
+		self.writeAndTask.call(self, obj, callback);
+	},
+		
+	remove: function(post, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "remove";
 		obj.post= post;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	create: function(username, password, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "create";
+		obj.username= username;
+		obj.password= password;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	login: function(username, password, callback) {
+		var self= this;
+		self.username= username;
+		self.password= password;
+		var obj= {};
+		obj.type= "login";
+		obj.username= self.username;
+		obj.password= self.password;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
+	logout: function(callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "logout";
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
@@ -144,53 +162,6 @@ module.exports= {
 		obj.group= group;
 		self.writeAndTask.call(self, obj, callback);
 	},
-	
-	create: function(username, password, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "create";
-		obj.username= username;
-		obj.password= password;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	requestPasswordChange: function(username, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "requestPasswordChange";
-		obj.username= username;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	_requestPasswordChange: function(username, group, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_requestPasswordChange";
-		obj.app= app;
-		obj.username= username;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	changePassword: function(username, password, random, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "changePassword";
-		obj.username= username;
-		obj.password= password;
-		obj.random= random;
-		self.writeAndTask.call(self, obj, callback);
-	},
-	
-	_changePassword: function(app, username, password, random, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_changePassword";
-		obj.app= app;
-		obj.username= username;
-		obj.password= password;
-		obj.random= random;
-		self.writeAndTask.call(self, obj, callback);
-	},
 
 	email: function(name, replyTo, recipient, subject, body, callback) {
 		var self= this;
@@ -204,6 +175,24 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
+	requestPasswordChange: function(username, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "requestPasswordChange";
+		obj.username= username;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	changePassword: function(username, password, random, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "changePassword";
+		obj.username= username;
+		obj.password= password;
+		obj.random= random;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SUPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -65,23 +65,19 @@ Cloudilly.prototype.connect= function(username, password) {
 // SAAS METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-Cloudilly.prototype.login= function(username, password, callback) {
+Cloudilly.prototype.listen= function(group, callback) {
 	var self= this;
-	self.username= username;
-	self.password= password;
 	var obj= {};
-	obj.type= "login";
-	obj.username= self.username;
-	obj.password= self.password;
+	obj.type= "listen";
+	obj.group= group;
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.logout= function(callback) {
+Cloudilly.prototype.unlisten= function(group, callback) {
 	var self= this;
-	delete self.username;
-	delete self.password;
 	var obj= {};
-	obj.type= "logout";
+	obj.type= "unlisten";
+	obj.group= group;
 	self.writeAndTask.call(self, obj, callback);
 }
 
@@ -101,22 +97,6 @@ Cloudilly.prototype.unjoin= function(group, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.listen= function(group, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "listen";
-	obj.group= group;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.unlisten= function(group, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "unlisten";
-	obj.group= group;
-	self.writeAndTask.call(self, obj, callback);
-}
-
 Cloudilly.prototype.post= function(group, payload, callback) {
 	var self= this;
 	var obj= {};
@@ -126,11 +106,32 @@ Cloudilly.prototype.post= function(group, payload, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.unpost= function(post, callback) {
+Cloudilly.prototype.create= function(username, password, callback) {
 	var self= this;
 	var obj= {};
-	obj.type= "unpost";
-	obj.post= post;
+	obj.type= "create";
+	obj.username= username;
+	obj.password= password;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype.login= function(username, password, callback) {
+	var self= this;
+	self.username= username;
+	self.password= password;
+	var obj= {};
+	obj.type= "login";
+	obj.username= self.username;
+	obj.password= self.password;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype.logout= function(callback) {
+	var self= this;
+	delete self.username;
+	delete self.password;
+	var obj= {};
+	obj.type= "logout";
 	self.writeAndTask.call(self, obj, callback);
 }
 
@@ -160,23 +161,6 @@ Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, cal
 	obj.recipient= recipient;
 	obj.subject= subject;
 	obj.body= body;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.create= function(username, password, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "create";
-	obj.username= username;
-	obj.password= password;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.requestPasswordChange= function(username, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "requestPasswordChange";
-	obj.username= username;
 	self.writeAndTask.call(self, obj, callback);
 }
 
