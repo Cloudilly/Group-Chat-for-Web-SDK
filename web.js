@@ -51,15 +51,32 @@ Cloudilly.prototype.connect= function(username, password) {
 		}
 	}
 	
+	self.socket.onerror= function(err) {
+		self.attempts= self.attempts+ 1;
+		delete self.socket;
+		clearTimeout(self.pings);
+		self.callbacks["disconnected"].call(self);
+		if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+		return;
+	}
+	
 	self.socket.onclose= function(err) {
 		self.attempts= self.attempts+ 1;
 		delete self.socket;
 		clearTimeout(self.pings);
 		self.callbacks["disconnected"].call(self);
-		if(err.code!= 1000 && self.attempts< 9) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+		if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
 		return;
 	}
 }
+
+Cloudilly.prototype.disconnect= function() {
+	var self= this;
+	var obj= {};
+	obj.type= "disconnect";
+	var str= JSON.stringify(obj);
+	self.socket.send(str);
+},
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // SAAS METHODS
@@ -143,6 +160,23 @@ Cloudilly.prototype.update= function(payload, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
+Cloudilly.prototype.store= function(group, payload, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "store";
+	obj.group= group;
+	obj.payload= payload;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype.remove= function(post, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "remove";
+	obj.post= post;
+	self.writeAndTask.call(self, obj, callback);
+}
+
 Cloudilly.prototype.notify= function(message, group, callback) {
 	var self= this;
 	var obj= {};
@@ -164,6 +198,14 @@ Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, cal
 	self.writeAndTask.call(self, obj, callback);
 }
 
+Cloudilly.prototype.requestPasswordChange= function(username, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "requestPasswordChange";
+	obj.username= username;
+	self.writeAndTask.call(self, obj, callback);
+}
+	
 Cloudilly.prototype.changePassword= function(username, password, random, callback) {
 	var self= this;
 	var obj= {};
@@ -187,13 +229,13 @@ Cloudilly.prototype.challenge= function(obj) {
 	});
 }
 Cloudilly.prototype.connectNormal= function() {
-	var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
+	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "web"; obj.version= 1;
 	if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
 Cloudilly.prototype.connectToken= function() {
-	var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
+	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 	var obj= {}; obj.type= "auth"; obj.app= self.app; obj.token= self.getCookie.call(self, "token"); var str= JSON.stringify(obj); self.socket.send(str);
 }
 Cloudilly.prototype.connectSuccess= function(obj) { var self= this; self.startPing.call(self); self.callbacks["connected"].call(self, null, obj); }
@@ -212,14 +254,14 @@ Cloudilly.prototype.taskFail= function(obj) {
 }
 Cloudilly.prototype.startPing= function() { var self= this; self.firePing.call(self); self.pings= setInterval(function() { self.firePing.call(self); }, 15000); }
 Cloudilly.prototype.firePing= function() {
-	var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
+	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 	self.socket.send("1"); var tasks= [];
 	for(var key in self.tasks) { tasks.push([key, self.tasks[key]["timestamp"]]); };
 	tasks.sort(function(a, b) { return a[1]< b[1] ? 1 : a[1]> b[1] ? -1 : 0 });
 	var length= tasks.length; while(length--) { var task= self.tasks[tasks[length][0]]; self.socket.send(task.data); }
 }
 Cloudilly.prototype.writeAndTask= function(obj, callback) {
-	var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
+	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 	var timestamp= Math.round(new Date().getTime()); obj.task= obj.type + "-" + timestamp; self.callbacks[obj.task]= callback;
 	var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
 	var str= JSON.stringify(obj); self.socket.send(str);

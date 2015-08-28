@@ -17,12 +17,12 @@ module.exports= {
 	
 	connect: function(username, password) {
 		var self= this;
-		if(self.socket && this.socket.readyState== 1) { return; }
+		if(self.socket && self.socket.readyState== 1) { return; }
 		self.username= username;
 		self.password= password;
 		self.socket= new WebSocket("wss://ws.cloudilly.com");
 		self.socket.onopen= function() { self.attempts= 0; self.connectNormal.call(self); return; }
-		
+
 		self.socket.onmessage= function(msg) {
 			if(msg.data== "1") { return; }
 			var obj= JSON.parse(msg.data);
@@ -47,14 +47,31 @@ module.exports= {
 			}
 		}
 		
+		self.socket.onerror= function(err) {
+			self.attempts= self.attempts+ 1;
+			delete self.socket;
+			clearTimeout(self.pings);
+			self.callbacks["disconnected"].call(self);
+			if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+			return;
+		}
+		
 		self.socket.onclose= function(err) {
 			self.attempts= self.attempts+ 1;
 			delete self.socket;
 			clearTimeout(self.pings);
 			self.callbacks["disconnected"].call(self);
-			if(err.code!= 1000 && self.attempts< 9) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+			if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
 			return;
 		}
+	},
+	
+	disconnect: function() {
+		var self= this;
+		var obj= {};
+		obj.type= "disconnect";
+		var str= JSON.stringify(obj);
+		self.socket.send(str);
 	},
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -198,7 +215,7 @@ module.exports= {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 	
 	connectNormal: function(username, password) {
-		var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); return; }
+		var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 		var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "hook"; obj.version= 1;
 		if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 		var str= JSON.stringify(obj); self.socket.send(str);
@@ -219,14 +236,14 @@ module.exports= {
 	},
 	startPing: function() { var self= this; self.firePing.call(self); self.pings= setInterval(function() { self.firePing.call(self); }, 15000); },
 	firePing: function() {
-		var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, username, password); }, 2000 * self.attempts); return; }
+		var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 		self.socket.send("1"); var tasks= [];
 		for(var key in self.tasks) { tasks.push([key, self.tasks[key]["timestamp"]]); };
 		tasks.sort(function(a, b) { return a[1]< b[1] ? 1 : a[1]> b[1] ? -1 : 0 });
 		var length= tasks.length; while(length--) { var task= self.tasks[tasks[length][0]]; self.socket.send(task.data); }
 	},
 	writeAndTask: function(obj, callback) {
-		var self= this; if(!self.socket || self.socket.readyState!= 1) { setTimeout(function() { self.connect.call(self, username, password); }, 2000 * self.attempts); return; }
+		var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
 		var timestamp= Math.round(new Date().getTime()); obj.task= obj.type + "-" + timestamp; self.callbacks[obj.task]= callback;
 		var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
 		var str= JSON.stringify(obj); self.socket.send(str);
