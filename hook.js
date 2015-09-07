@@ -17,7 +17,7 @@ module.exports= {
 	
 	connect: function(username, password) {
 		var self= this;
-		if(self.socket && self.socket.readyState== 1) { return; }
+		if(self.socket && (self.socket.readyState== 0 || self.socket.readyState== 1)) { return; }
 		self.username= username;
 		self.password= password;
 		self.socket= new WebSocket("wss://ws.cloudilly.com");
@@ -46,22 +46,22 @@ module.exports= {
 				case "post": self.callbacks["post"].call(self, obj); return;
 			}
 		}
-		
+
 		self.socket.onerror= function(err) {
 			self.attempts= self.attempts+ 1;
-			delete self.socket;
 			clearTimeout(self.pings);
 			self.callbacks["disconnected"].call(self);
-			if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+			if(err.code== 4000 || self.attempts> 100) { self.attempts= 0; return; }
+			setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts);
 			return;
 		}
-		
+
 		self.socket.onclose= function(err) {
 			self.attempts= self.attempts+ 1;
-			delete self.socket;
 			clearTimeout(self.pings);
 			self.callbacks["disconnected"].call(self);
-			if(err.code!= 4000 && self.attempts< 100) { setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts); }
+			if(err.code== 4000 || self.attempts> 100) { self.attempts= 0; return; }
+			setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts);
 			return;
 		}
 	},
@@ -119,23 +119,6 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
-	store: function(group, payload, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "store";
-		obj.group= group;
-		obj.payload= payload;
-		self.writeAndTask.call(self, obj, callback);
-	},
-		
-	remove: function(post, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "remove";
-		obj.post= post;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
 	create: function(username, password, callback) {
 		var self= this;
 		var obj= {};
@@ -155,9 +138,11 @@ module.exports= {
 		obj.password= self.password;
 		self.writeAndTask.call(self, obj, callback);
 	},
-	
+
 	logout: function(callback) {
 		var self= this;
+		delete self.username;
+		delete self.password;
 		var obj= {};
 		obj.type= "logout";
 		self.writeAndTask.call(self, obj, callback);
@@ -170,7 +155,24 @@ module.exports= {
 		obj.payload= payload;
 		self.writeAndTask.call(self, obj, callback);
 	},
-	
+
+	store: function(group, payload, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "store";
+		obj.group= group;
+		obj.payload= payload;
+		self.writeAndTask.call(self, obj, callback);
+	},
+		
+	remove: function(post, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "remove";
+		obj.post= post;
+		self.writeAndTask.call(self, obj, callback);
+	},
+		
 	notify: function(message, group, callback) {
 		var self= this;
 		var obj= {};
