@@ -178,17 +178,17 @@ Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, cal
 	obj.body= body;
 	self.writeAndTask.call(self, obj, callback);
 }
-
-Cloudilly.prototype.changePassword= function(username, password, random, callback) {
+	
+Cloudilly.prototype.changePassword= function(username, password, token, callback) {
 	var self= this;
 	var obj= {};
 	obj.type= "changePassword";
 	obj.username= username;
 	obj.password= password;
-	obj.random= random;
+	obj.token= token;
 	self.writeAndTask.call(self, obj, callback);
 }
-				
+			
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -256,7 +256,10 @@ Cloudilly.prototype.socketReceivedPost= function(callback) { this.callbacks["pos
 // COOKIES
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-Cloudilly.prototype.setCookie= function(cname, cvalue, callback) { document.cookie= cname + "=" + cvalue + "; "; callback(); return; }
+Cloudilly.prototype.setCookie= function(cname, cvalue, callback) {
+	var d= new Date(Date.now() + 86400000); var expires= "expires=" + d.toUTCString();
+	document.cookie= cname + "=" + cvalue + "; " + expires; callback(); return;
+}
 Cloudilly.prototype.clearCookie= function(cname) { document.cookie= cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC"; return; }
 Cloudilly.prototype.getCookie= function(cname) {
 	var name= cname+ "="; var ca= document.cookie.split(";");
@@ -264,5 +267,6 @@ Cloudilly.prototype.getCookie= function(cname) {
 }
 Cloudilly.prototype.getToken= function(device, callback) {
 	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "/tokens", true); xmlHttp.setRequestHeader("CONTENT-TYPE","APPLICATION/X-WWW-FORM-URLENCODED");
-	xmlHttp.onload= function() { callback(JSON.parse(this.responseText)); }; xmlHttp.send("device=" + device + "&cookie=" + self.getCookie.call(self, "cloudilly"));
+	xmlHttp.onreadystatechange= function() { if(xmlHttp.readyState== 4 && xmlHttp.status== 200) { callback(JSON.parse(xmlHttp.responseText)); } }
+	xmlHttp.send("device=" + device + "&cloudilly=" + self.getCookie.call(self, "cloudilly"));
 }

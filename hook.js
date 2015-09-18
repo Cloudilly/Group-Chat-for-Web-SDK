@@ -202,13 +202,13 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
-	changePassword: function(username, password, random, callback) {
+	changePassword: function(username, password, token, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "changePassword";
 		obj.username= username;
 		obj.password= password;
-		obj.random= random;
+		obj.token= token;
 		self.writeAndTask.call(self, obj, callback);
 	},
 
