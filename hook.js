@@ -65,7 +65,11 @@ module.exports= {
 			return;
 		}
 	},
-	
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SAAS METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 	disconnect: function() {
 		var self= this;
 		var obj= {};
@@ -73,10 +77,6 @@ module.exports= {
 		var str= JSON.stringify(obj);
 		self.socket.send(str);
 	},
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// SAAS METHODS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	listen: function(group, callback) {
 		var self= this;
@@ -110,6 +110,14 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
+	update: function(payload, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "update";
+		obj.payload= payload;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 	post: function(group, payload, callback) {
 		var self= this;
 		var obj= {};
@@ -119,6 +127,23 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
+	store: function(group, payload, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "store";
+		obj.group= group;
+		obj.payload= payload;
+		self.writeAndTask.call(self, obj, callback);
+	},
+		
+	remove: function(post, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "remove";
+		obj.post= post;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 	create: function(username, password, callback) {
 		var self= this;
 		var obj= {};
@@ -148,31 +173,22 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
-	update: function(payload, callback) {
+	link: function(group, callback) {
 		var self= this;
 		var obj= {};
-		obj.type= "update";
-		obj.payload= payload;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
-	store: function(group, payload, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "store";
+		obj.type= "link";
 		obj.group= group;
-		obj.payload= payload;
 		self.writeAndTask.call(self, obj, callback);
 	},
-		
-	remove: function(post, callback) {
+	
+	unlink: function(group, callback) {
 		var self= this;
 		var obj= {};
-		obj.type= "remove";
-		obj.post= post;
+		obj.type= "unlink";
+		obj.group= group;
 		self.writeAndTask.call(self, obj, callback);
 	},
-		
+			
 	notify: function(message, group, callback) {
 		var self= this;
 		var obj= {};
@@ -182,12 +198,10 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
-	email: function(name, replyTo, recipient, subject, body, callback) {
+	email: function(recipient, subject, body, callback) {
 		var self= this;
 		var obj= {};
 		obj.type= "email";
-		obj.name= name;
-		obj.replyTo= replyTo;
 		obj.recipient= recipient;
 		obj.subject= subject;
 		obj.body= body;
@@ -212,6 +226,58 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SUPER METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	_verifyAccount: function(username, accountID, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_verifyAccount";
+		obj.username= username;
+		obj.accountID= accountID;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	_updateAPNSPlatform: function(app, device, platform, arn, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_updateAPNSPlatform";
+		obj.app= app;
+		obj.device= device;
+		obj.platform= platform;
+		obj.arn= arn;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	_updateGCMPlatform: function(app, device, arn, serverkey, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_updateGCMPlatform";
+		obj.app= app;
+		obj.device= device;
+		obj.arn= arn;
+		obj.serverkey= serverkey;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	_updatePlan: function(app, plan, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_updatePlan";
+		obj.app= app;
+		obj.plan= plan;
+		self.writeAndTask.call(self, obj, callback);
+	},
+
+	_cleanDevices: function(host, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "_cleanDevices";
+		obj.host= host;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -246,7 +312,9 @@ module.exports= {
 	},
 	writeAndTask: function(obj, callback) {
 		var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-		var timestamp= Math.round(new Date().getTime()); obj.task= obj.type + "-" + timestamp; self.callbacks[obj.task]= callback;
+		var timestamp= Math.round(new Date().getTime()); var task= obj.type + "-" + timestamp;
+		var i= 0; while(self.callbacks[task]) { i++; task= task + "-" + i; }
+		obj.task= task; self.callbacks[obj.task]= callback;
 		var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
 		var str= JSON.stringify(obj); self.socket.send(str);
 	},

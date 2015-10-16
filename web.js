@@ -60,6 +60,10 @@ Cloudilly.prototype.connect= function(username, password) {
 	}
 }
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SAAS METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 Cloudilly.prototype.disconnect= function() {
 	var self= this;
 	var obj= {};
@@ -67,10 +71,6 @@ Cloudilly.prototype.disconnect= function() {
 	var str= JSON.stringify(obj);
 	self.socket.send(str);
 },
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// SAAS METHODS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Cloudilly.prototype.listen= function(group, callback) {
 	var self= this;
@@ -104,6 +104,14 @@ Cloudilly.prototype.unjoin= function(group, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
+Cloudilly.prototype.update= function(payload, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "update";
+	obj.payload= payload;
+	self.writeAndTask.call(self, obj, callback);
+}
+
 Cloudilly.prototype.post= function(group, payload, callback) {
 	var self= this;
 	var obj= {};
@@ -133,52 +141,6 @@ Cloudilly.prototype.logout= function(callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.update= function(payload, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "update";
-	obj.payload= payload;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.store= function(group, payload, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "store";
-	obj.group= group;
-	obj.payload= payload;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.remove= function(post, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "remove";
-	obj.post= post;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.notify= function(message, group, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "notify";
-	obj.message= message;
-	obj.group= group;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype.email= function(name, replyTo, recipient, subject, body, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "email";
-	obj.name= name;
-	obj.replyTo= replyTo;
-	obj.recipient= recipient;
-	obj.subject= subject;
-	obj.body= body;
-	self.writeAndTask.call(self, obj, callback);
-}
-	
 Cloudilly.prototype.changePassword= function(username, password, token, callback) {
 	var self= this;
 	var obj= {};
@@ -188,7 +150,7 @@ Cloudilly.prototype.changePassword= function(username, password, token, callback
 	obj.token= token;
 	self.writeAndTask.call(self, obj, callback);
 }
-			
+				
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -235,7 +197,9 @@ Cloudilly.prototype.firePing= function() {
 }
 Cloudilly.prototype.writeAndTask= function(obj, callback) {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-	var timestamp= Math.round(new Date().getTime()); obj.task= obj.type + "-" + timestamp; self.callbacks[obj.task]= callback;
+	var timestamp= Math.round(new Date().getTime()); var task= obj.type + "-" + timestamp;
+	var i= 0; while(self.callbacks[task]) { i++; task= task + "-" + i; }
+	obj.task= task; self.callbacks[obj.task]= callback;
 	var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
@@ -266,7 +230,7 @@ Cloudilly.prototype.getCookie= function(cname) {
 	for(var i= 0; i< ca.length; i++) { var c= ca[i]; while(c.charAt(0)==" ") { c= c.substring(1); }; if(c.indexOf(name)== 0) { return c.substring(name.length, c.length); } }
 }
 Cloudilly.prototype.getToken= function(device, callback) {
-	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "/tokens", true); xmlHttp.setRequestHeader("CONTENT-TYPE","APPLICATION/X-WWW-FORM-URLENCODED");
-	xmlHttp.onreadystatechange= function() { if(xmlHttp.readyState== 4 && xmlHttp.status== 200) { callback(JSON.parse(xmlHttp.responseText)); } }
+	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "/tokens", true); xmlHttp.setRequestHeader("content-type","application/x-www-form-urlencoded");
+	xmlHttp.onreadystatechange= function() { if(xmlHttp.readyState== 4 && xmlHttp.status== 200) { callback(xmlHttp.responseText); } }
 	xmlHttp.send("device=" + device + "&cloudilly=" + self.getCookie.call(self, "cloudilly"));
 }
