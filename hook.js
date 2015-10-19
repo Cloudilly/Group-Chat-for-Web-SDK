@@ -86,6 +86,15 @@ module.exports= {
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
+	listenWithPassword: function(group, password, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "listen";
+		obj.group= group;
+		obj.password= password;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
 	unlisten: function(group, callback) {
 		var self= this;
 		var obj= {};
@@ -99,6 +108,15 @@ module.exports= {
 		var obj= {};
 		obj.type= "join";
 		obj.group= group;
+		self.writeAndTask.call(self, obj, callback);
+	},
+	
+	joinWithPassword: function(group, password, callback) {
+		var self= this;
+		var obj= {};
+		obj.type= "join";
+		obj.group= group;
+		obj.password= password;
 		self.writeAndTask.call(self, obj, callback);
 	},
 	
@@ -225,58 +243,6 @@ module.exports= {
 		obj.token= token;
 		self.writeAndTask.call(self, obj, callback);
 	},
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// SUPER METHODS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-	_verifyAccount: function(username, accountID, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_verifyAccount";
-		obj.username= username;
-		obj.accountID= accountID;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
-	_updateAPNSPlatform: function(app, device, platform, arn, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_updateAPNSPlatform";
-		obj.app= app;
-		obj.device= device;
-		obj.platform= platform;
-		obj.arn= arn;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
-	_updateGCMPlatform: function(app, device, arn, serverkey, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_updateGCMPlatform";
-		obj.app= app;
-		obj.device= device;
-		obj.arn= arn;
-		obj.serverkey= serverkey;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
-	_updatePlan: function(app, plan, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_updatePlan";
-		obj.app= app;
-		obj.plan= plan;
-		self.writeAndTask.call(self, obj, callback);
-	},
-
-	_cleanDevices: function(host, callback) {
-		var self= this;
-		var obj= {};
-		obj.type= "_cleanDevices";
-		obj.host= host;
-		self.writeAndTask.call(self, obj, callback);
-	},
 	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
@@ -312,11 +278,13 @@ module.exports= {
 	},
 	writeAndTask: function(obj, callback) {
 		var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-		var timestamp= Math.round(new Date().getTime()); var task= obj.type + "-" + timestamp;
-		var i= 0; while(self.callbacks[task]) { i++; task= task + "-" + i; }
-		obj.task= task; self.callbacks[obj.task]= callback;
-		var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
+		var timestamp= Math.round(new Date().getTime()); var tid= obj.type + "-" + self.generateUUID.call();
+		obj.task= tid; self.callbacks[tid]= callback;
+		var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= tid; self.tasks[tid]= task;
 		var str= JSON.stringify(obj); self.socket.send(str);
+	},
+	generateUUID: function() {
+		return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) { var r= Math.random()*16|0; var v= c=== "x" ? r : (r&0x3|0x8); return v.toString(16); });
 	},
 	
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@

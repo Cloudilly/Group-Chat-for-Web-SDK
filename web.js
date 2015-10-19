@@ -80,6 +80,15 @@ Cloudilly.prototype.listen= function(group, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
+Cloudilly.prototype.listenWithPassword= function(group, password, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "listen";
+	obj.group= group;
+	obj.password= password;
+	self.writeAndTask.call(self, obj, callback);
+}
+
 Cloudilly.prototype.unlisten= function(group, callback) {
 	var self= this;
 	var obj= {};
@@ -93,6 +102,15 @@ Cloudilly.prototype.join= function(group, callback) {
 	var obj= {};
 	obj.type= "join";
 	obj.group= group;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype.joinWithPassword= function(group, password, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "join";
+	obj.group= group;
+	obj.password= password;
 	self.writeAndTask.call(self, obj, callback);
 }
 
@@ -197,14 +215,16 @@ Cloudilly.prototype.firePing= function() {
 }
 Cloudilly.prototype.writeAndTask= function(obj, callback) {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-	var timestamp= Math.round(new Date().getTime()); var task= obj.type + "-" + timestamp;
-	var i= 0; while(self.callbacks[task]) { i++; task= task + "-" + i; }
-	obj.task= task; self.callbacks[obj.task]= callback;
-	var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= obj.task; self.tasks[obj.task]= task;
+	var timestamp= Math.round(new Date().getTime()); var tid= obj.type + "-" + self.generateUUID.call();
+	obj.task= tid; self.callbacks[tid]= callback;
+	var task= {}; task.timestamp= timestamp; task.data= JSON.stringify(obj); task.task= tid; self.tasks[tid]= task;
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
 Cloudilly.prototype.reachability= function() {
 	var self= this; window.addEventListener("online", function(e) { self.connect.call(self, self.username, self.password); });
+}
+Cloudilly.prototype.generateUUID= function() {
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) { var r= Math.random()*16|0; var v= c=== "x" ? r : (r&0x3|0x8); return v.toString(16); });
 }
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -232,5 +252,5 @@ Cloudilly.prototype.getCookie= function(cname) {
 Cloudilly.prototype.getToken= function(device, callback) {
 	var self= this; var xmlHttp= new XMLHttpRequest(); xmlHttp.open("POST", "/tokens", true); xmlHttp.setRequestHeader("content-type","application/x-www-form-urlencoded");
 	xmlHttp.onreadystatechange= function() { if(xmlHttp.readyState== 4 && xmlHttp.status== 200) { callback(xmlHttp.responseText); } }
-	xmlHttp.send("device=" + device + "&cloudilly=" + self.getCookie.call(self, "cloudilly"));
+	xmlHttp.send("device=" + device);
 }
