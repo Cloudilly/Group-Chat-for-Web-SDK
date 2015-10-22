@@ -159,13 +159,104 @@ Cloudilly.prototype.logout= function(callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-Cloudilly.prototype.changePassword= function(username, password, token, callback) {
+Cloudilly.prototype.changePassword= function(group, password, token, callback) {
 	var self= this;
 	var obj= {};
 	obj.type= "changePassword";
-	obj.username= username;
+	obj.group= group;
 	obj.password= password;
 	obj.token= token;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// SUPER METHODS
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Cloudilly.prototype._createAccount= function(username, password, payload, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_createAccount";
+	obj.username= username;
+	obj.password= password;
+	obj.payload= payload;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._generateSecret= function(callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_generateSecret";
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._createApp= function(app, appName, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_createApp";
+	obj.app= app;
+	obj.appName= appName;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateAppName= function(app, appName, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateAppName";
+	obj.app= app;
+	obj.appName= appName;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._insertValidDomain= function(app, validDomain, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_insertValidDomain";
+	obj.app= app;
+	obj.validDomain= validDomain;
+	self.writeAndTask.call(self, obj, callback);
+}
+		
+Cloudilly.prototype._removeValidDomain= function(app, validDomain, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_removeValidDomain";
+	obj.app= app;
+	obj.validDomain= validDomain;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateAccess= function(app, saas, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateAccess";
+	obj.app= app;
+	obj.saas= saas;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._updateBunID= function(app, platform, bunID, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_updateBunID";
+	obj.app= app;
+	obj.platform= platform;
+	obj.bunID= bunID;
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._getAccount= function(callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_getAccount";
+	self.writeAndTask.call(self, obj, callback);
+}
+
+Cloudilly.prototype._getApp= function(app, callback) {
+	var self= this;
+	var obj= {};
+	obj.type= "_getApp";
+	obj.app= app;
 	self.writeAndTask.call(self, obj, callback);
 }
 				
@@ -183,7 +274,7 @@ Cloudilly.prototype.challenge= function(obj) {
 }
 Cloudilly.prototype.connectNormal= function() {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "web"; obj.version= 1;
+	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "_web"; obj.version= 1;
 	if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
@@ -241,8 +332,8 @@ Cloudilly.prototype.socketReceivedPost= function(callback) { this.callbacks["pos
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Cloudilly.prototype.setCookie= function(cname, cvalue, callback) {
-	var d= new Date(Date.now() + 86400000); var expires= "expires=" + d.toUTCString();
-	document.cookie= cname + "=" + cvalue + "; " + expires; callback(); return;
+	var d= new Date(Date.now() + 86400000); var expires= "expires=" + d.toUTCString(); var path= "path=/";
+	document.cookie= cname + "=" + cvalue + "; " + expires + ";" + path + ";"; callback(); return;
 }
 Cloudilly.prototype.clearCookie= function(cname) { document.cookie= cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC"; return; }
 Cloudilly.prototype.getCookie= function(cname) {
