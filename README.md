@@ -1,3 +1,3 @@
 # Javascript
 
-![Anonymous](https://github.com/Cloudilly/Images/blob/master/javascript_anonymous.png)
+![Anonymous](https://github.com/cloudilly/images/blob/master/javascript_anonymous.png)
