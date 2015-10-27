@@ -274,7 +274,7 @@ Cloudilly.prototype.challenge= function(obj) {
 }
 Cloudilly.prototype.connectNormal= function() {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "_web"; obj.version= 1;
+	var obj= {}; obj.type= "connect"; obj.app= self.app; obj.access= self.access; obj.saas= "web"; obj.version= 1;
 	if(self.username) { obj.username= self.username; }; if(self.password) { obj.password= self.password; }
 	var str= JSON.stringify(obj); self.socket.send(str);
 }
