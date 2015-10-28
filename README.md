@@ -5,8 +5,3 @@ Repository contains sample codes required to build an anonymous group chat appli
 
 ####Instructions
 **[NodeJS](https://github.com/cloudilly/Javascript/wiki/NodeJS)**
-
-####Coming soon!
-**Java (Coming soon!)**<br>
-**PHP (Coming soon!)**<br>
-**Ruby (Coming soon!)**
