@@ -1,4 +1,4 @@
-#Anonymous Chat | Web SDK
+#Anonymous Chat. Web SDK
 
 ####Web SDK
 
