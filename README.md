@@ -1,5 +1,5 @@
 #Anonymous Chat. Web SDK
-Repository contains sample codes required to build a barebones anonymous group chat application as screenshot below.
+Repository contains sample codes required to build an anonymous group chat application as screenshot below.
 
 ![Anonymous](https://github.com/cloudilly/images/blob/master/javascript_anonymous.png)
 
