@@ -7,4 +7,3 @@ Repository contains sample codes required to build an anonymous group chat appli
 **[NodeJS](../../wiki/NodeJS)**<br>
 **[Java](../../wiki/Java)**<br>
 **[PHP](../../wiki/PHP)**<br>
-Ruby (Coming soon!)<br>
