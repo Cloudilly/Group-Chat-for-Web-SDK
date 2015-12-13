@@ -18,7 +18,7 @@ public class TokensServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String SECRET= "61ee63b4-2195-4fd9-993a-d8329ccb08ef";
+		String SECRET= "<INSERT YOUR SECRET KEYS>";
 		String device= request.getParameter("device");
 		JWTSigner jwtSign= new JWTSigner(SECRET);
 		JWTSigner.Options opt= new JWTSigner.Options();

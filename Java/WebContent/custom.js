@@ -1,5 +1,5 @@
-var app= "com.cloudilly.test";
-var access= "abaa934b-78f0-47ff-8d5f-ebcd1eb59697";
+var app= "<INSERT YOUR APP NAME>";
+var access= "<INSERT YOUR WEB ACCESS KEYS>";
 
 window.onload= function() {
 	window.cloudilly= new Cloudilly();
