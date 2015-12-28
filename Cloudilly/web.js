@@ -6,7 +6,8 @@ Cloudilly.prototype.initialize= function(app, access, callback) {
 	this.socket= {};
 	this.tasks= {};
 	this.callbacks= {};
-	this.pings= {};
+	this.ping= {};
+	this.pong= {};
 	this.attempts= 0;
 	this.username= "";
 	this.password= "";
@@ -24,7 +25,7 @@ Cloudilly.prototype.connect= function(username, password) {
 	self.socket.onopen= function() { self.attempts= 0; self.getCookie.call(self, "token") ? self.connectToken.call(self) : self.connectNormal.call(self); return; }
 	
 	self.socket.onmessage= function(msg) {
-		if(msg.data== "1") { return; }
+		if(msg.data== "1") { self.stopPong.call(self); return; }
 		var obj= JSON.parse(msg.data);
 		
 		switch(obj.type) {
@@ -52,7 +53,7 @@ Cloudilly.prototype.connect= function(username, password) {
 
 	self.socket.onclose= function(err) {
 		self.attempts= self.attempts+ 1;
-		clearTimeout(self.pings);
+		clearTimeout(self.ping);
 		self.callbacks["disconnected"].call(self);
 		if(err.code== 4000 || self.attempts> 100) { self.attempts= 0; return; }
 		setTimeout(function() { self.connect.call(self, self.username, self.password); }, 2000 * self.attempts);
@@ -169,97 +170,6 @@ Cloudilly.prototype.changePassword= function(group, password, token, callback) {
 	self.writeAndTask.call(self, obj, callback);
 }
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// SUPER METHODS
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-Cloudilly.prototype._createAccount= function(username, password, payload, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_createAccount";
-	obj.username= username;
-	obj.password= password;
-	obj.payload= payload;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._generateSecret= function(callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_generateSecret";
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._createApp= function(app, appName, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_createApp";
-	obj.app= app;
-	obj.appName= appName;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._updateAppName= function(app, appName, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_updateAppName";
-	obj.app= app;
-	obj.appName= appName;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._insertValidDomain= function(app, validDomain, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_insertValidDomain";
-	obj.app= app;
-	obj.validDomain= validDomain;
-	self.writeAndTask.call(self, obj, callback);
-}
-		
-Cloudilly.prototype._removeValidDomain= function(app, validDomain, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_removeValidDomain";
-	obj.app= app;
-	obj.validDomain= validDomain;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._updateAccess= function(app, saas, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_updateAccess";
-	obj.app= app;
-	obj.saas= saas;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._updateBunID= function(app, platform, bunID, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_updateBunID";
-	obj.app= app;
-	obj.platform= platform;
-	obj.bunID= bunID;
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._getAccount= function(callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_getAccount";
-	self.writeAndTask.call(self, obj, callback);
-}
-
-Cloudilly.prototype._getApp= function(app, callback) {
-	var self= this;
-	var obj= {};
-	obj.type= "_getApp";
-	obj.app= app;
-	self.writeAndTask.call(self, obj, callback);
-}
-				
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
 // HELPER METHODS
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -286,23 +196,39 @@ Cloudilly.prototype.connectSuccess= function(obj) { var self= this; self.startPi
 Cloudilly.prototype.connectFail= function(obj) { var self= this; self.clearCookie.call(self, "token"); self.callbacks["connected"].call(self, 1, obj); }
 Cloudilly.prototype.taskSuccess= function(obj) {
 	var self= this;
+	if(!self.callbacks[obj.task]) { return; }
 	self.callbacks[obj.task].call(self, null, obj);
 	delete self.callbacks[obj.task];
 	delete self.tasks[obj.task];
 }
 Cloudilly.prototype.taskFail= function(obj) {
 	var self= this;
+	if(!self.callbacks[obj.task]) { return; }
 	self.callbacks[obj.task].call(self, 1, obj);
 	delete self.callbacks[obj.task];
 	delete self.tasks[obj.task];
 }
-Cloudilly.prototype.startPing= function() { var self= this; self.firePing.call(self); self.pings= setInterval(function() { self.firePing.call(self); }, 15000); }
+Cloudilly.prototype.startPing= function() { var self= this; self.firePing.call(self); self.ping= setInterval(function() { self.firePing.call(self); }, 15000); }
 Cloudilly.prototype.firePing= function() {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
-	self.socket.send("1"); var tasks= [];
-	for(var key in self.tasks) { tasks.push([key, self.tasks[key]["timestamp"]]); };
+	self.socket.send("1"); self.startPong.call(self);
+	var tasks= []; for(var key in self.tasks) { tasks.push([key, self.tasks[key]["timestamp"]]); };
 	tasks.sort(function(a, b) { return a[1]< b[1] ? 1 : a[1]> b[1] ? -1 : 0 });
 	var length= tasks.length; while(length--) { var task= self.tasks[tasks[length][0]]; self.socket.send(task.data); }
+}
+Cloudilly.prototype.startPong= function() {
+	var self= this;
+	if(self.pong) { clearTimeout(self.pong); self.pong= null; }
+	self.pong= setTimeout(function() { self.firePong.call(self); }, 5000);
+}
+Cloudilly.prototype.stopPong= function() {
+	var self= this;
+	if(!self.pong) { return; }
+	clearTimeout(self.pong);
+	self.pong= null;
+}
+Cloudilly.prototype.firePong= function() {
+	self.socket.close();
 }
 Cloudilly.prototype.writeAndTask= function(obj, callback) {
 	var self= this; if(!self.socket || self.socket.readyState!= 1) { return; }
